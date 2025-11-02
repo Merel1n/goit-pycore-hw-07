@@ -15,13 +15,12 @@ class Name(Field):
     """Клас для зберігання імені контакту"""
     def __init__(self, value):
         if not self.validate(value):
-            return "The name must be more than two characters and not contain numbers."
-        super().__init__(value)
+            raise ValueError ("The name must be more than two characters and not contain numbers.")
+        super().self.value = value
     @staticmethod
     def validate(value):
         """Перевіряє, що ім'я більше 2 символів і не складається з цифер"""
         return len(value) > 2 or not value.isdigit()
-
 
 
 class Phone(Field):
