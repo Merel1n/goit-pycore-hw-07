@@ -16,7 +16,7 @@ class Name(Field):
     def __init__(self, value):
         if not self.validate(value):
             raise ValueError ("The name must be more than two characters and not contain numbers.")
-        super().self.value = value
+        self.value = value
     @staticmethod
     def validate(value):
         """Перевіряє, що ім'я більше 2 символів і не складається з цифер"""
@@ -91,8 +91,8 @@ class Record:
     def __str__(self):
         """Гарне текстове представлення запису"""
         phones_str = "; ".join(p.value for p in self.phones) if self.phones else "No phones"
-        bday_str = f", birthday: {self.birthday}" if self.birthday else ""
-        return f"Contact name: {self.name.value}, phones: {phones_str}{bday_str}"
+        birthday_str = f", birthday: {self.birthday}" if self.birthday else ""
+        return f"Contact name: {self.name.value}, phones: {phones_str}{birthday_str}"
 
 
 class AddressBook(UserDict):
@@ -112,7 +112,16 @@ class AddressBook(UserDict):
             
     def get_birthdays_per_week(self):
         """Показує контакти, у яких день народження протягом наступного тижня"""
-        return calculate_birthdays(self)
+        today = datetime.now().date()
+        week_from_now = today + timedelta(days=7)
+        result = []
+
+        for record in self.data.values():
+            if record.birthday:
+                birthday_this_year = record.birthday.value.date().replace(year=today.year)
+                if today <= birthday_this_year <= week_from_now:
+                    result.append(f"{record.name.value}: {record.birthday}")
+        return result
 
     
     
@@ -190,18 +199,6 @@ def show_birthday(args, book: AddressBook):
     else:
         return f"No birthday found for {name}."
     
-def calculate_birthdays(book):
-    """Розрахунок днів народження на наступний тиждень"""
-    today = datetime.now().date()
-    week_from_now = today + timedelta(days=7)
-    result = []
-
-    for record in book.data.values():
-        if record.birthday:
-            birthday_this_year = record.birthday.value.date().replace(year=today.year)
-            if today <= birthday_this_year <= week_from_now:
-                result.append(f"{record.name.value}: {record.birthday}")
-    return result
 
 def parse_input(user_input):
     cmd, *args = user_input.split()
